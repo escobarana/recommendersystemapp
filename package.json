@@ -1,0 +1,37 @@
+{
+  "name": "express-recommendersystem-tfg",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Server node.js + express + mongodb",
+  "main": "app.js",
+  "author": "Aida Maria Gonzalez Fernandez, Ana Escobar Llamazares",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "app-store-scraper": "^0.16.3",
+    "async": "^3.2.0",
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "csv-parser": "^2.3.2",
+    "debug": "~2.6.9",
+    "exceljs": "^3.8.1",
+    "express": "^4.16.4",
+    "firebase": "^8.1.2",
+    "firebase-admin": "^9.4.1",
+    "fs": "0.0.1-security",
+    "google-play-scraper": "8.0.2",
+    "helmet": "^4.4.1",
+    "http-errors": "~1.6.3",
+    "jade": "^1.11.0",
+    "mongoose": "^5.11.1",
+    "morgan": "~1.9.1",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}

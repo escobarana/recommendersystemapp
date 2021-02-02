@@ -1,0 +1,13 @@
+name: recommender-system
+title: Recommender-System
+username: aidamaria_96
+account: aidamaria_96
+server: beta.rstudioconnect.com
+hostUrl: https://beta.rstudioconnect.com/__api__
+appId: 9519
+bundleId: 27708
+url: https://beta.rstudioconnect.com/content/9519/
+when: 1589403060.82053
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: apps.json|bothStores.json|data.RData|data2.RData|deletions.csv|deletions.json|prueba.R|textMining.docx|textMining.html|textMining.log|textMining.R|textMining.Rmd|textMining.tex|textMining.zip

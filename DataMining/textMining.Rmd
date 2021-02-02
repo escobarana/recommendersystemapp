@@ -1,0 +1,441 @@
+---
+title: "Sistema de recomendación de aplicaciones médicas"
+author: "Aida María González"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r Cargar Data, echo=FALSE, paged.print=TRUE}
+load("data2.RData")
+```
+
+# Análisis de aplicaciones
+
+## Cargar datos
+
+La API de R recibirá los datos de las aplicaciones y los cargará para poder ser utilizados. Estos datos procederán de la base de datos de App Store y Google Play en la categoría de Health and Fitness.
+
+## Tidy data frame
+
+Después de cargar las aplicaciones, se creará una estructura de datos ordenada (**tidy data frame**) para poder ser manipulado en la recomendación.
+Constará del id y descripción de cada aplicación.
+
+```{r Tidy data frame, echo=FALSE, message=FALSE, warning=FALSE}
+#tidy_data_frame
+```
+
+
+## Limpieza de descripción
+
+Una vez que tengamos el **tidy data frame** creado, se hará la limpieza de la descripción.
+
+Si se estudian las descripciones de las aplicaciones, se puede ver que todavía quedan algunas que tienen la descripción en otro idioma diferente al inglés o filas nulas. Se eliminan dichas aplicaciones y filas.
+Estas son las aplicaciones que vamos a eliminar:
+
+```{r Apps no inglesas, echo=FALSE, message=FALSE, warning=FALSE}
+#not_english_apps
+```
+
+Se eliminan números y signos de puntuación.
+Así es como quedarían las descripciones de las aplicaciones hasta el momento:
+
+```{r Limpieza descripcion, echo=FALSE}
+#desc_limpio
+```
+
+## Formato tidy text
+
+Para hacer el análisis, se necesitará separar las palabras de las descripciones de cada aplicación. Se crearán dos formatos **tidy text** para una palabra y para pares de palabras.
+En este proceso limpiaremos las *palabras vacías* como artículos, pronombres, verbos, etc. y a cada una de las palabras restantes aplicaremos un proceso llamado *stemming*. El *stemming* es un método para reducir una palabra a su raiz. Así mismo, también limpiará cualquier resto de caracteres que no sean palabras.
+
+```{r Tidy text, echo=FALSE}
+#tidy_text
+```
+
+```{r Tidy text bigram, echo=FALSE}
+#tidy_text_bigram
+```
+
+### Aplicaciones no útiles
+
+Se eliminarán las aplicaciones que no sean de utilidad. 
+Primero se eliminarán las aplicaciones que contengan los siguientes pares de palabras: *weight loss*, *free trial*, *purchase subscription*, *weight lifting*, *trial period*, *lose weight*, *confirm purchase*, *fat burn*, *belly fat*, *burn workout*, *apple watch*, *heavy weight*, *slim down*, *burn calories*, *high intensity*, *body sculptor* y *for kids*.
+
+Después se eliminarán las que contengan las siguientes palabras clave: *ovulation*, *fertil*, *wearable*, *baby*, *pregnancy*, *hypnosis*, *longevity*, *abs*, *heavy*, *watches*, *trial*, *membership*, *premium*, *subscription*, *mediation*, *purchase*, *yoga*, *pilates*, *zen*, *relax*, *mind*, *eat*, *food*, *sleep*, *tarot*, *slim*, *device*, *reiky*, *weight*, *pet*, *nutrition*, *calories*, *medication* y *kids*.
+
+Situación de las aplicaciones final:
+
+```{r Apps final, echo=FALSE, warning=FALSE}
+#app_desc
+#app_desc_bigrams
+```
+
+### Frecuencia de palabras
+
+Podemos mirar las palabras más comunes de todas las applicaciones:
+
+```{r Frecuencia una palabra, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+app_desc %>%
+  count(word_stem, sort = TRUE) %>%
+  filter(n > 50) %>%
+  ggplot(aes(x=reorder(word_stem, n), y=n)) +
+  geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+  coord_flip() +
+  xlab("") +
+  theme_bw() + 
+  labs(title = "Palabras más comunes en todas las apps")
+```
+
+Los pares de palabras más comunes:
+
+```{r Frecuencia pares palabras, echo=FALSE}
+app_desc_bigrams %>%
+  count(word_stem, sort = TRUE) %>%
+  filter(n > 9) %>%
+  ggplot(aes(x=reorder(word_stem, n), y=n)) +
+  geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+  coord_flip() +
+  xlab("") +
+  theme_bw() + 
+  labs(title = "Pares de palabras más comunes en todas las apps")
+```
+
+Y las palabras más comunes para cada aplicación.
+
+```{r Frecuencia palabras comun, echo=FALSE}
+library(grid)
+apps <- app_desc %>% distinct(appId)
+for(r in 1:nrow(apps)){
+  grid.newpage()
+  app <- apps[r,]
+  plot <- app_desc[which(app_desc$appId==toString(app)), ] %>%
+    count(word_stem, sort = TRUE) %>%
+    top_n(10, n) %>%
+    ungroup() %>%
+    ggplot(aes(x=reorder(word_stem, n), y=n)) +
+    geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+    ylab("frecuencia") +
+    xlab("palabras") +
+    labs(title = toString(app)) +
+    coord_flip() +
+    theme_bw()
+  print(plot)
+  cat('\r\n\r\n')
+}
+```
+
+
+## Análisis de frecuencia de palabras y documentos: tf-idf
+
+En la minería de datos, es muy común calcular la medida para conocer de qué trata un documento. Para ello, existe un algoritmo formado por dos ideas: **TF** y **IDF**.
+En primer lugar, se encuentra **Term Frequency** (TF), que mide la frecuencia de una palabra en un documento. En segundo lugar, se encuentra **Inverse Document Frequency** (IDF), donde el peso de una palabra aumenta a medida que su uso sea poco frecuente.
+Si juntamos estas dos medidas, tenemos como resultado **TF-IDF**, un algoritmo que da como resultado la importancia una palabra para cada documento.
+
+Calculamos ahora dichos valores para las frecuencias de una palabra y las de pares de palabras por separado; y además una palabra y pares de palabras juntos.
+
+```{r TF-IDF, echo=FALSE, message=FALSE, warning=FALSE}
+#desc_tf_idf
+#bigram_tf_idf
+#all_tf_idf
+```
+
+Con los valores de **TF-IDF** nos será más fácil valorar y analizar cada documento.
+Vamos a mostrar las gráficas para cada aplicación con las medidas de **TF-IDF** de una palabra y pares de palabras juntos más significativas.
+
+```{r Grafica tf-idf, echo=FALSE}
+library(grid)
+apps <- all_tf_idf %>% distinct(appId)
+for(r in 1:nrow(apps)){
+  grid.newpage()
+  app <- apps[r,]
+  plot <- all_tf_idf[which(all_tf_idf$appId==toString(app)), ] %>%
+    top_n(10, tf_idf) %>%
+    ungroup() %>%
+    ggplot(aes(x=reorder(word_stem,tf_idf ), y=tf_idf)) +
+    geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+    ylab("tf-idf") +
+    xlab("palabras") +
+    labs(title = toString(app)) +
+    coord_flip() +
+    theme_bw()
+  print(plot)
+  cat('\r\n\r\n')
+}
+```
+
+
+## Creación de DocumentTerm Matrix
+El **DocumentTerm Matrix** (DTM) es una representación de la frecuencia de una palabra en cada uno de los documentos. Este formato va a ser necesario para el modelado de temas que habrá más adelante.
+
+El **DTM** se puede convertir en una matriz para que se vean mejor los datos. Un ejemplo sería:
+
+```{r DTM, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+kable(matrizTerms[1:4,1:4])
+```
+
+## Modelado de temas
+
+En minería de textos, existe un análisis llamado "agrupamiento" o "cluster". Dicho análisis ayuda a poder detectar diferentes grupos naturales en un conjunto de documentos. 
+Para tener un conocimiento más profundo sobre las aplicaciones, aplicaremos este análisis. Utilizaremos el método **Asignación Latente de Dirichlet** (LDA), el cual nos permitirá descubrir categorías no observables y entender mejor los documentos, en este caso, las aplicaciones.
+
+Construiremos el modelo de temas con tres grupos naturales a partir del **DocumentTerm Matrix**.
+
+Para k=2:
+
+```{r LDA2, echo=FALSE, warning=FALSE}
+library(tidytext)
+top_terms2 %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Palabras comunes para cada grupo")
+
+top_terms_bigram2 %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Pares de palabras comunes para cada grupo")
+
+top_terms_both2 %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Conjunto de palabras y pares de palabras comunes para cada grupo")
+```
+
+
+Para k=3:
+
+```{r LDA3, echo=FALSE, warning=FALSE}
+library(tidytext)
+top_terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Palabras comunes para cada grupo")
+
+top_terms_bigram %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Pares de palabras comunes para cada grupo")
+
+top_terms_both %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Conjunto de palabras y pares de palabras comunes para cada grupo")
+```
+
+
+Para k=4:
+
+```{r LDA4, echo=FALSE, warning=FALSE}
+library(tidytext)
+top_terms4 %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Palabras comunes para cada grupo")
+
+top_terms_bigram4 %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Pares de palabras comunes para cada grupo")
+
+top_terms_both4 %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  labs(title = "Conjunto de palabras y pares de palabras comunes para cada grupo")
+```
+
+El valor **beta** es calculado para cada una de las palabras. Sirve para medir la probabilidad de que esa palabra sea generada para cada uno de los grupos. Por ejemplo, la palabra *heart* tiene una probabilidad de ser generada por el grupo 1 de 0.007750085, por el grupo 2 de 0.01179043 y por el grupo 3 de 0.007017814.
+
+Ahora podemos explorar qué grupos están asociados a cada documento:
+
+1. Una sola palabra:
+
+  1.1. Con k = 2:
+
+```{r LDA2 Gamma una palabra, echo=FALSE, message=FALSE, warning=FALSE}
+tidied_model_documents2 <- tidy(desc_lda2, matrix = "gamma")
+#tidied_model_documents2
+
+##cuantos documentos pertenece a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(tidied_model_documents2, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+  1.2. Con k=3:
+
+```{r LDA3 Gamma una palabra, echo=FALSE, message=FALSE, warning=FALSE}
+tidied_model_documents <- tidy(desc_lda, matrix = "gamma")
+#tidied_model_documents
+
+##cuantos documentos pertenece a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(tidied_model_documents, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+  1.3. Con k=4:
+
+```{r LDA4 Gamma una palabra, echo=FALSE, message=FALSE, warning=FALSE}
+tidied_model_documents4 <- tidy(desc_lda4, matrix = "gamma")
+#tidied_model_documents4
+
+##cuantos documentos pertenece a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(tidied_model_documents4, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+2. Pares de palabras:
+
+  2.1. Con k=2:
+
+```{r LDA2 Gamma pares palabras, echo=FALSE, message=FALSE, warning=FALSE}
+bigram_tidied_model_documents2 <- tidy(desc_bigram_lda2, matrix = "gamma")
+#bigram_tidied_model_documents2
+
+##cuantos documentos perteneces a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(bigram_tidied_model_documents2, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+  2.2. Con k=3:
+
+```{r LDA3 Gamma pares palabras, echo=FALSE, message=FALSE, warning=FALSE}
+bigram_tidied_model_documents <- tidy(desc_bigram_lda, matrix = "gamma")
+bigram_tidied_model_documents
+
+##cuantos documentos perteneces a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(bigram_tidied_model_documents, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+  2.3. Con k=4:
+
+```{r LDA4 Gamma pares palabras, echo=FALSE, message=FALSE, warning=FALSE}
+bigram_tidied_model_documents4 <- tidy(desc_bigram_lda4, matrix = "gamma")
+bigram_tidied_model_documents4
+
+##cuantos documentos perteneces a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(bigram_tidied_model_documents4, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+3. Conjunto de una palabra y pares de palabras:
+
+  3.1. Con k=2:
+
+```{r LDA2 Gamma cnjunto palabras, echo=FALSE, message=FALSE, warning=FALSE}
+both_tidied_model_documents2 <- tidy(both_lda2, matrix = "gamma")
+both_tidied_model_documents2
+
+##cuantos documentos perteneces a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(both_tidied_model_documents2, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+  3.2. Con k=3:
+
+```{r LDA Gamma cnjunto palabras, echo=FALSE, message=FALSE, warning=FALSE}
+both_tidied_model_documents3 <- tidy(both_lda, matrix = "gamma")
+both_tidied_model_documents3
+
+##cuantos documentos perteneces a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(both_tidied_model_documents3, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+  3.3. Con k=4:
+
+```{r LDA4 Gamma cnjunto palabras, echo=FALSE, message=FALSE, warning=FALSE}
+both_tidied_model_documents4 <- tidy(both_lda4, matrix = "gamma")
+both_tidied_model_documents4
+
+##cuantos documentos perteneces a cada uno de los temas
+##1 == pertenece ; 0 == no pertenece
+ggplot(both_tidied_model_documents4, aes(gamma, fill = as.factor(topic))) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ topic, ncol = 4) +
+  scale_y_log10() +
+  labs(title = "Distribución de probabilidad para cada grupo",
+       y = "Número de documentos", x = expression(gamma))
+```
+
+Vemos la distribución de probabilidad para cada tema y los valores gamma de cada documento. Cuanto más se acerque al valor 1, más pertenece a dicho tema.
