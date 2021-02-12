@@ -5,11 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 //Import the mongoose module
 var mongoose = require('mongoose');
-var cors = require('cors');
+// var cors = require('cors');
 
 var routesRouter = require('./routes/allRoutes');
-//var compression = require('compression'); // to compress the routes at the end - production
-//var helmet = require('helmet'); // to protect against well known vulnerabilities - npm install helmet
+var compression = require('compression'); // to compress the routes at the end - production
+var helmet = require('helmet'); // to protect against well known vulnerabilities - npm install helmet
 
 var app = express(); // object to run the server
 
@@ -21,12 +21,11 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-//app.use(compression()); //Compress all routes -- for the end - production
-//app.use(helmet());
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(compression()); //Compress all routes -- for the end - production
+app.use(helmet());
 
 /// Set up default mongoose connection ///
-var mongoDB = 'mongodb+srv://admin:ZRMtpVXyFIBjS5VQ@cluster0.fzgq3.mongodb.net/recommendersystemdb?retryWrites=true&w=majority'
+var mongoDB = 'mongodb://156.35.163.172:27017/recommendersystemdb'
 
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
 
@@ -34,25 +33,27 @@ mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useC
 var db = mongoose.connection;
 
 //Bind connection to error event (to get notification of connection errors)
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
-/// AUTHENTICATION WITH FIREBASE /// 
-var admin = require("firebase-admin");
-var serviceAccount = require("./recommender-system-tfg-firebase-adminsdk-2fqsl-107b200021.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+// HEADERS AND CORS CONFIG
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+
+  next();
 });
-const dbfirebase = admin.firestore();
 
 
 /// GETTING THE CLIENT - ANGULAR ///
-var corsOptions = {
-  origin: 'http://localhost:4200',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
-};
+//var corsOptions = {
+//  origin: 'http://localhost:4200',
+//  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+//};
 
-app.use(cors(corsOptions));
+ // app.use(cors());
 
 
 /// Routes ///
@@ -80,11 +81,6 @@ var keywords = ['physical activity']; //, 'sedentary behaviour', 'colorectal neo
 
 var listGoogle = [];
 var listApple = [];
-
-app.route('/api/test').get((req, res) => {
-  res.send(200);
-  console.log("Accediendo a apps Google");
-});
 
 app.route('/api/apps/google/raw').get((req, res) => {
   req.setTimeout(600000);

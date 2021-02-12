@@ -34,7 +34,7 @@ exports.post_system_apps_accept = async (req, res) => {
         result = await app.save();
         res.send(result);
     }
-}
+};
 
 // Display list of removed apps by the system.
 exports.getSystemRemove = async (req, res) => {
@@ -63,7 +63,7 @@ exports.post_system_apps_remove = async (req, res) => {
         result = await app.save();
         res.send(result);
     }
-}
+};
 
 // Display list of reviewed accepted apps.
 exports.getReviewAccept = async (req, res) => {
@@ -92,7 +92,7 @@ exports.post_apps_review_accept = async (req, res) => {
         result = await app.save();
         res.send(result);
     }
-}
+};
 
 exports.delete_review_accept = async(req, res)=>{
     try{
@@ -130,7 +130,7 @@ exports.post_apps_review_remove = async (req, res) => {
         result = await app.save();
         res.send(result);
     }
-}
+};
 
 exports.delete_review_remove = async(req, res)=>{
     try{
@@ -168,7 +168,7 @@ exports.post_apps_accepted = async (req, res) => {
         result = await app.save();
         res.send(result);
     }
-}
+};
 
 exports.delete_final_accept = async(req, res)=>{
     try{
@@ -206,7 +206,7 @@ exports.post_apps_removed = async (req, res) => {
         result = await app.save();
         res.send(result);
     }
-}
+};
 
 exports.delete_final_remove = async(req, res)=>{
     try{

@@ -4,11 +4,12 @@ var Schema = mongoose.Schema;
 
 var AppRRSchema = new Schema(
   {
-      icon: {type: String, required: true},
-      url: {type: String, required: true},
-      description: {type: String, required: true},
-      appId: {type: String, required: true},
-      title: {type: String, required: true}
+    appId: {type: String, required: true},
+    description: {type: String, required: true},  
+    icon: {type: String, required: true},
+    title: {type: String, required: true},
+    url: {type: String, required: true},
+    reviews: {type: Array, default: []}
   },
   { collection : 'apps_review_remove' }
 );
