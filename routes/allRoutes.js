@@ -40,7 +40,6 @@ router.put('/update_assigned/:user_id/:app_appId', md_auth.ensureAuth, user_cont
 router.delete('/remove_assigned/:user_id/:app_appId', user_controller.user_remove_assigned);
 
 
-
 /// APP ROUTES ///
 
 // GET request to return accepted apps.
@@ -90,7 +89,6 @@ router.post('/apps_removed/:app_appId', md_auth.ensureAuth, app_controller.post_
 
 // DELETE request to remove app from the final remove list
 router.delete('/deleteApp/apps_removed/:app_appId', [md_auth.ensureAuth, md_admin.isAdmin], app_controller.delete_final_remove);
-
 
 
 /// FORM ROUTES ///
