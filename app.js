@@ -42,6 +42,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error'));
 // HEADERS AND CORS CONFIG
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
+  res.setHeader('Content-Security-Policy-Report-Only',"default-src <http://156.35.163.172> <https://recommended-server.herokuapp.com> ; connect-src <https://recommended-server.herokuapp.com> <http://156.35.163.172>; font-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'; frame-src 'self'");
   res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
   res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
