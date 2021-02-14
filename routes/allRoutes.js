@@ -25,7 +25,7 @@ router.put('/updateUser/:user_id',  [md_auth.ensureAuth, md_admin.isAdmin], user
 router.delete('/deleteUser/:user_id', [md_auth.ensureAuth, md_admin.isAdmin], user_controller.user_delete);
 
 // GET request for list all Users.
-router.get('/allUsers', [md_auth.ensureAuth, md_admin.isAdmin], user_controller.user_list);
+router.get('/allUsers', /*[md_auth.ensureAuth, md_admin.isAdmin],*/ user_controller.user_list);
 
 // PUT request to update list_recommend apps
 router.put('/update_recommend/:user_id/:app_appId', md_auth.ensureAuth, user_controller.user_update_recommend);

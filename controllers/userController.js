@@ -9,19 +9,17 @@ exports.user_create_post = async (req, res) =>{
   if (user) {
       return res.status(400).send('That user already exists!');
   } else {
-    if(req.body.name && req.body.email && req.body.password){ // checking the input data
-        // Insert the new user if it does not exist yet
-        user = new User({
-          name: req.body.name,
-          email: req.body.email.toLowerCase(),
-          password: req.body.password
-      });
+        user = new User({name: req.body.name,
+                         email: req.body.email.toLowerCase(),
+                         password: req.body.password
+    });
 
-      // encrypt password
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(user.password, salt);
+    // encrypt password
+    bcrypt.hash(req.body.password, null, null, function(err, hash){
+      user.password = hash;
 
-      await user.save((err, userStored) => {
+      // save user in the database
+      user.save((err, userStored) => {
         if(err){
           res.status(500).send({message: 'Error saving the user'});
         }else{
@@ -31,12 +29,9 @@ exports.user_create_post = async (req, res) =>{
             res.status(200).send({user: userStored});
           }
         }
-      });
-      
-    }else{ // an input data is missing
-      res.status(200).send({message: 'All fields are required'});
-    }
-  }
+      });   
+    });
+  }  
 };
 
 exports.user_login = async(req, res) => {

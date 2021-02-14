@@ -19,3 +19,27 @@ exports.createToken = function(user){
 
     return jwr.encode(payload, secret);
 };
+
+exports.decodeToken = function(token){
+    const decoded = new Promise((resolve, reject)=>{
+        try{
+            const payload = jwt.decode(token, secret);
+
+            if(payload.exp <= moment().unix()){ // if the token is not expired
+                reject({
+                    status: 401,
+                    message: 'The token has expired'
+                });
+            }
+
+            resolve(payload.sub);
+        }catch(err){
+            reject({
+                status: 500,
+                message: 'Invalid token'
+            })
+        }
+    });
+
+    return decoded;
+};

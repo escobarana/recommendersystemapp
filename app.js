@@ -1,3 +1,4 @@
+'use strict' // use all standards from javascript
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -27,7 +28,9 @@ app.use(helmet());
 /// Set up default mongoose connection ///
 var mongoDB = 'mongodb://156.35.163.172:27017/recommendersystemdb'
 
-mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true})
+        .then( () => { console.log('Successfully connected to the database.') }) 
+        .catch(err => console.log(err));
 
 //Get the default connection
 var db = mongoose.connection;
