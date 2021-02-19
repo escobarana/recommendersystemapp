@@ -37,6 +37,20 @@ var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
+var whitelist = ["http://localhost:4200", "http://156.35.163.172:3000", "http://156.35.163.172:8081"];
+
+cors({
+    origin(origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    methods: ["PUT, GET, POST, DELETE, OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true
+});
 
 // HEADERS AND CORS CONFIG
 //app.use((req, res, next) => {
@@ -48,10 +62,10 @@ db.on('error', console.error.bind(console, 'MongoDB connection error'));
 //  next();
 //});
 
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+//app.use(cors({
+//    origin: true,
+//    credentials: true
+//}));
 
 /// GETTING THE CLIENT - ANGULAR ///
 //var corsOptions = {
