@@ -37,7 +37,7 @@ var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
-var whitelist = ["http://localhost:4200", "http://156.35.163.172:3000", "http://156.35.163.172:8081"];
+var whitelist = ["http://localhost:4200", "http://156.35.163.172:3000", "http://156.35.163.172:80"];
 
 cors({
     origin(origin, callback) {
@@ -82,7 +82,7 @@ app.use('/api', routesRouter); // Add users routes to middleware chain.
 
 // Frinedly and optimized URLs -- avoiding errors when refreshing the page
 app.get('*', function(req, res, next){
-  res.sendFile(path.resolve('client/index.html'));
+  res.sendFile(path.resolve('./client/index.html'));
 });
 
 /// GETTING APPS ///

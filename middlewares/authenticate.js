@@ -1,5 +1,3 @@
-'use strict'
-
 const auth = require('../services/jwt');
 
 exports.ensureAuth = function(req, res, next){

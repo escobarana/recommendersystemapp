@@ -1,5 +1,3 @@
-'use strict'
-
 var jwt = require('jwt-simple');
 var moment = require('moment');
 var secret = 'bZlTZWNyZXRAYXNzd29yZG18U2VjamV0UGFzc3dvcmQP';
