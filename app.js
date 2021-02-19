@@ -1,4 +1,3 @@
-'use strict' // use all standards from javascript
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -6,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 //Import the mongoose module
 var mongoose = require('mongoose');
-// var cors = require('cors');
+var cors = require('cors');
 
 var routesRouter = require('./routes/allRoutes');
 var compression = require('compression'); // to compress the routes at the end - production
@@ -40,15 +39,19 @@ db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
 
 // HEADERS AND CORS CONFIG
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
-  res.header('Access-Control-Allow-Headers', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+//app.use((req, res, next) => {
+//  res.header('Access-Control-Allow-Origin', '*');
+//  res.header('Access-Control-Allow-Headers', '*');
+//  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+//  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
 
-  next();
-});
+//  next();
+//});
 
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 
 /// GETTING THE CLIENT - ANGULAR ///
 //var corsOptions = {
