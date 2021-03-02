@@ -5,11 +5,11 @@ exports.ensureAuth = function(req, res, next){
         return res.status(403).send({ message: 'The request does not have the authentication header' });
     }
 
-    var token = req.headers.authorization.split(' ')[1];
+    var token = req.headers.authorization.replace(/['"]+/g, ''); // regular expression 
 
     auth.decodeToken(token)
         .then(response => {
-            req.user = response;
+            req.user = response; // payload
             next();
         })
         .catch(response => {

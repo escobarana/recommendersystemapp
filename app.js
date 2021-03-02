@@ -37,9 +37,9 @@ var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
-var whitelist = ["http://localhost:4200", "http://156.35.163.172:3000", "http://156.35.163.172:80"];
+//var whitelist = ["http://localhost:4200", "http://156.35.163.172:3000", "http://156.35.163.172:80"];
 
-cors({
+/*cors({
     origin(origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
             callback(null, true);
@@ -50,40 +50,42 @@ cors({
     methods: ["PUT, GET, POST, DELETE, OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true
-});
+});*/
+
+/*.authorizeRequests()
+            .antMatchers("/api/profile-info").permitAll()
+            .antMatchers("/api/**").authenticated()
+            .antMatchers("/management/health").permitAll()
+            .antMatchers("/management/info").permitAll()
+            .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
+            .anyRequest().permitAll();*/
 
 // HEADERS AND CORS CONFIG
-//app.use((req, res, next) => {
-//  res.header('Access-Control-Allow-Origin', '*');
-//  res.header('Access-Control-Allow-Headers', '*');
-//  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-//  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Required for CORS support to work
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header("Access-Control-Allow-Credentials", true); // Required for cookies, authorization headers with HTTPS
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Content-Type', 'application/json');
 
-//  next();
-//});
+  next();
+});
 
-//app.use(cors({
-//    origin: true,
-//    credentials: true
-//}));
 
 /// GETTING THE CLIENT - ANGULAR ///
-//var corsOptions = {
-//  origin: 'http://localhost:4200',
-//  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
-//};
+var corsOptions = {
+  origin: 'http://localhost:4200',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+};
 
- // app.use(cors());
+app.use(cors());
 
 
 /// Routes ///
 app.use('/', express.static('client', { redirect: false }));
 app.use('/api', routesRouter); // Add users routes to middleware chain.
 
-// Frinedly and optimized URLs -- avoiding errors when refreshing the page
-app.get('*', function(req, res, next){
-  res.sendFile(path.resolve('./client/index.html'));
-});
 
 /// GETTING APPS ///
 
@@ -165,7 +167,7 @@ app.route('/api/apps/apple/raw').get((req, res) => {
       res.send(listApple);
   }, function(err) {
       console.log(err);
-  })
+  }).catch(error => console.log(`Error in executing ${error}`))
 });
 
 app.route('/api/apps/apple/descriptionApps').get((req, res) => {
@@ -192,7 +194,7 @@ app.route('/api/apps/apple/descriptionApps').get((req, res) => {
       res.send(listApple);
   }, function(err) {
       console.log(err);
-  })
+  }).catch(error => console.log(`Error in executing ${error}`))
 });
 
 app.route('/api/apps/apple/keywords').get((req, res) => {
@@ -217,25 +219,24 @@ app.route('/api/apps/apple/keywords').get((req, res) => {
       listApple = listApple.filter((arr, index, self) => //elimina los duplicados
           index === self.findIndex((t) => (t.appId === arr.appId)));
       res.send(listApple);
-  })
-  .catch(error => console.log(`Error in executing ${error}`))
+  }).catch(error => console.log(`Error in executing ${error}`))
 });
 
 app.route('/api/apps/listApps').get((req, res) => {
   console.log("Sending both stores to R");
   var url = 'http://localhost:' + port_plumber + '/dataMining?url=' + 'http:%2F%2Flocalhost:3000%2Fapi%2FbothStores' + '&valueK=' + req.query.valueK;
-  var p = r.getAppsFromR(url);
-  p.then(values => { 
+  r.getAppsFromR(url).then(values => { 
       console.log(values); 
-      res.send(values);
-  });
-  p.catch(function () {
-      console.log("Promise Rejected");
-  });
+      res.send(values);}).catch(function () { console.log("Promise Rejected"); });
 });
 
 /// END GETTING APPS ///
 
+
+// Friendly and optimized URLs -- avoiding errors when refreshing the page
+app.get('*', function(req, res, next){
+    res.sendFile(path.resolve('client/index.html'));
+  });
 
 
 /// ERROR HANDLERS ///

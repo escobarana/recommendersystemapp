@@ -9,7 +9,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "app-store-scraper": "^0.16.3",
+    "app-store-scraper": "0.16.3",
     "async": "^3.2.0",
     "bcrypt": "^5.0.0",
     "bcrypt-nodejs": "0.0.3",

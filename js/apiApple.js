@@ -61,10 +61,10 @@ module.exports = {
                             all_values = all_values.filter((arr, index, self) => //elimina los duplicados
                                 index === self.findIndex((t) => (t.appId === arr.appId)));
                             resolve(all_values);
-                        }).catch(console.log);
-                    }).catch(console.log);
-                }).catch(console.log);
-            }).catch(console.log);
+                        }).catch(error => console.log(`Error in executing ${error}`));
+                    }).catch(error => console.log(`Error in executing ${error}`));
+                }).catch(error => console.log(`Error in executing ${error}`));
+            }).catch(error => console.log(`Error in executing ${error}`));
         })
     },
     searchByKeywords: function (keywords) {
@@ -104,7 +104,7 @@ module.exports = {
                     console.log("not resolved");
                     resolve();
                 }
-            }).catch(console.log);
+            }).catch(error => console.log(`Error in executing ${error}`));
         });
     },
     getDescriptions: function(all_values){
@@ -124,7 +124,7 @@ module.exports = {
                     }, function(error) {
                         return Promise.reject(error);
                     });
-                }catch(err){}
+                }catch(err){console.log(err);}
                  
             })).then((response) => { 
                 response.forEach( resp => {
@@ -154,7 +154,7 @@ module.exports = {
                         return element.free !== false && element.primaryGenre === 'Health & Fitness'; //quita los que no sean apps gratis
                     });
                     resolve(search_values);
-                }).catch(console.log)
+                }).catch(error => console.log(`Error in executing ${error}`))
         });
     }
     
@@ -174,7 +174,7 @@ function getFromKeyword (word) {
                 });
                 console.log("word apple: " + word);
                 resolve(search_values);
-            }).catch(console.log)
+            }).catch(error => console.log(`Error in executing ${error}`))
     });
 }
 

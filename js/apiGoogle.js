@@ -33,10 +33,9 @@ module.exports = {
                     all_values = all_values.filter((arr, index, self) => //elimina los duplicados
                         index === self.findIndex((t) => (t.appId === arr.appId)));
                     resolve(all_values);
-                });
-            });
-        })
-    },
+                })
+            }).catch(error => console.log(`Error in executing ${error}`));
+        })},
     searchByKeywords: function (keywords) {
         return new Promise(function(resolve, reject) {
             const promises = []
@@ -50,9 +49,10 @@ module.exports = {
     },
     getAppDetail: function (appId) {
         return new Promise(function(resolve, reject) {
-            gplay.app({appId: appId, throttle: 10}).then((app) => { 
+            gplay.app({appId: appId, throttle: 10})
+            .then((app) => { 
                 resolve(app);
-            }).catch(console.log) 
+            }).catch(error => console.log(`Error in executing ${error}`));
         });
     },
     getDescriptions: function(all_values){
@@ -83,7 +83,7 @@ module.exports = {
                     })
                 })
                 resolve(all_values);
-            })
+            }).catch(error => console.log(`Error in executing ${error}`));
         });
     },
     getFromKeyword:function (word) {
@@ -113,7 +113,7 @@ module.exports = {
                             resolve(apps);
                         })
                         .catch(error => console.log(`Error in executing ${error}`))
-                }).catch(console.log)
+                }).catch(error => console.log(`Error in executing ${error}`));
         });
     }
   };
@@ -154,5 +154,5 @@ function getAppDetail (appId) {
         gplay.app({appId: appId, throttle: 10}).then((app) => { 
             resolve(app);
         }).catch(reject()) 
-    }).catch(console.log) ;
+    }).catch(error => console.log(`Error in executing ${error}`));
 }
