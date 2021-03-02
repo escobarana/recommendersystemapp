@@ -75,7 +75,7 @@ app.use((req, res, next) => {
 
 /// GETTING THE CLIENT - ANGULAR ///
 var corsOptions = {
-  origin: 'http://localhost:4200',
+  //origin: 'http://localhost:4200',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 };
 
