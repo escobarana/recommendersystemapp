@@ -79,7 +79,7 @@ var corsOptions = {
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 
 
 /// Routes ///
@@ -235,7 +235,7 @@ app.route('/api/apps/listApps').get((req, res) => {
 
 // Friendly and optimized URLs -- avoiding errors when refreshing the page
 app.get('*', function(req, res, next){
-    res.sendFile(path.resolve('client/index.html'));
+    res.sendFile(path.resolve('./client/index.html'));
   });
 
 
