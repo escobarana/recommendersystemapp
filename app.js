@@ -11,8 +11,9 @@ var routesRouter = require('./routes/allRoutes');
 var compression = require('compression'); // to compress the routes at the end - production
 var helmet = require('helmet'); // to protect against well known vulnerabilities - npm install helmet
 
-var app = express(); // object to run the server
 
+var app = express(); // object to run the server
+app.disable('etag');
 /// view engine setup ///
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -34,59 +35,39 @@ mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useC
 //Get the default connection
 var db = mongoose.connection;
 
+
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
-//var whitelist = ["http://localhost:4200", "http://156.35.163.172:3000", "http://156.35.163.172:80"];
-
-/*cors({
-    origin(origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    methods: ["PUT, GET, POST, DELETE, OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    credentials: true
-});*/
-
-/*.authorizeRequests()
-            .antMatchers("/api/profile-info").permitAll()
-            .antMatchers("/api/**").authenticated()
-            .antMatchers("/management/health").permitAll()
-            .antMatchers("/management/info").permitAll()
-            .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            .anyRequest().permitAll();*/
 
 // HEADERS AND CORS CONFIG
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // Required for CORS support to work
-  res.header('Access-Control-Allow-Headers', '*');
-  res.header("Access-Control-Allow-Credentials", true); // Required for cookies, authorization headers with HTTPS
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
   res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
-  res.header('Content-Type', 'application/json');
 
   next();
 });
 
 
 /// GETTING THE CLIENT - ANGULAR ///
-var corsOptions = {
-  //origin: 'http://localhost:4200',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
-};
+//var corsOptions = {
+//  origin: 'http://localhost:4200',
+//  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+//};
 
-app.use(cors(corsOptions));
+ // app.use(cors());
 
 
 /// Routes ///
 app.use('/', express.static('client', { redirect: false }));
 app.use('/api', routesRouter); // Add users routes to middleware chain.
 
-
+// Frinedly and optimized URLs -- avoiding errors when refreshing the page
+app.get('*', function(req, res, next){
+  res.sendFile(path.resolve('client/index.html'));
+});
 /// GETTING APPS ///
 
 // API Google Play Store
@@ -234,9 +215,9 @@ app.route('/api/apps/listApps').get((req, res) => {
 
 
 // Friendly and optimized URLs -- avoiding errors when refreshing the page
-app.get('*', function(req, res, next){
-    res.sendFile(path.resolve('./client/index.html'));
-  });
+/*app.get('*', function(req, res, next){
+    res.sendFile(path.resolve('client/index.html'));
+  });*/
 
 
 /// ERROR HANDLERS ///
