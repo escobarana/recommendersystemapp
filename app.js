@@ -68,6 +68,7 @@ app.use('/api', routesRouter); // Add users routes to middleware chain.
 app.get('*', function(req, res, next){
   res.sendFile(path.resolve('client/index.html'));
 });
+
 /// GETTING APPS ///
 
 // API Google Play Store
