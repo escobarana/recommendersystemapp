@@ -86,7 +86,7 @@ var listGoogle = [];
 var listApple = [];
 
 app.route('/api/apps/google/raw').get((req, res) => {
-  req.setTimeout(600000);
+  req.setTimeout(60000000);
   var appsGoogle = playstore.getApps();
   console.log("-----Buscando las apps - GOOGLE");
   appsGoogle.then(function(result_apps_google) {
@@ -99,7 +99,7 @@ app.route('/api/apps/google/raw').get((req, res) => {
 });
 
 app.route('/api/apps/google/descriptionApps').get((req, res) => {
-  req.setTimeout(600000);
+  req.setTimeout(60000000);
   console.log("-----Buscando las apps sin descripciones - GOOGLE");
   var appsGoogle = playstore.getDescriptions(listGoogle);
   appsGoogle.then(function(result_apps_google) {
@@ -115,7 +115,7 @@ app.route('/api/apps/google/descriptionApps').get((req, res) => {
 });
 
 app.route('/api/apps/google/keywords').get((req, res) => {
-  req.setTimeout(600000);
+  req.setTimeout(60000000);
   console.log("-----Buscando las apps con keywords - GOOGLE");
   const promises = []
   keywords.forEach(word => 
@@ -139,7 +139,7 @@ app.route('/api/apps/google/keywords').get((req, res) => {
 });
 
 app.route('/api/apps/apple/raw').get((req, res) => {
-  req.setTimeout(600000);
+  req.setTimeout(60000000);
   var appsApple = appStore.getApps();
   console.log("-----Buscando las apps - APPLE");
   appsApple.then(function(result_apps) {
@@ -152,7 +152,7 @@ app.route('/api/apps/apple/raw').get((req, res) => {
 });
 
 app.route('/api/apps/apple/descriptionApps').get((req, res) => {
-  req.setTimeout(600000);
+  req.setTimeout(60000000);
   console.log("-----Buscando las apps sin descripciones - APPLE");
   var appsApple = appStore.getDescriptions(listApple);
   appsApple.then(function(result_apps) {
@@ -179,7 +179,7 @@ app.route('/api/apps/apple/descriptionApps').get((req, res) => {
 });
 
 app.route('/api/apps/apple/keywords').get((req, res) => {
-  req.setTimeout(600000);
+  req.setTimeout(60000000);
   console.log("-----Buscando las apps con keywords - APPLE");
   const promises = []
   keywords.forEach(word => 
@@ -204,6 +204,7 @@ app.route('/api/apps/apple/keywords').get((req, res) => {
 });
 
 app.route('/api/apps/listApps').get((req, res) => {
+  req.setTimeout(60000000);
   console.log("Sending both stores to R");
   var url = 'http://localhost:' + port_plumber + '/dataMining?url=' + 'http:%2F%2Flocalhost:3000%2Fapi%2FbothStores' + '&valueK=' + req.query.valueK;
   r.getAppsFromR(url).then(values => { 
