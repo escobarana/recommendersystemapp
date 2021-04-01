@@ -8,7 +8,7 @@ var form_controller = require('../controllers/formController');
 
 //middleware
 var md_auth = require('../middlewares/authenticate');
-var md_admin = require('../middlewares/is_admin');
+// var md_admin = require('../middlewares/is_admin');
 
 /// USER ROUTES ///
 
@@ -19,34 +19,34 @@ router.post('/newUser', user_controller.user_create_post);
 router.post('/login', user_controller.user_login);
 
 // PUT request to update User.
-router.put('/updateUser/:user_email',  /*md_auth.ensureAuth,*/ user_controller.user_update);
+router.put('/updateUser/:user_email',  md_auth.ensureAuth, user_controller.user_update);
 
 // DELETE request to delete User.
-router.delete('/deleteUser/:user_email', /*md_auth.ensureAuth,*/ user_controller.user_delete);
+router.delete('/deleteUser/:user_email', md_auth.ensureAuth,  user_controller.user_delete);
 
 // GET request for list all Users.
-router.get('/allUsers', /*md_auth.ensureAuth,*/ user_controller.user_list); 
+router.get('/allUsers', md_auth.ensureAuth, user_controller.user_list); 
 
 // GET request to get a user object.
-router.get('/allUsers/:user_email', /*md_auth.ensureAuth,*/ user_controller.get_user); 
+router.get('/allUsers/:user_email', md_auth.ensureAuth, user_controller.get_user); 
 
 // PUT request to update list_recommend apps
-router.put('/update_recommend/:user_email', /*md_auth.ensureAuth,*/ user_controller.user_update_recommend);
+router.put('/update_recommend/:user_email', md_auth.ensureAuth, user_controller.user_update_recommend);
 
 // PUT request to update list_removed apps
 router.put('/update_removed/:user_email', md_auth.ensureAuth, user_controller.user_update_removed);
 
 // PUT request to update list_assigned apps
-router.put('/update_assigned/:user_email',/* md_auth.ensureAuth,*/ user_controller.user_update_assigned);
+router.put('/update_assigned/:user_email', md_auth.ensureAuth, user_controller.user_update_assigned);
 
 // PUT request to delete an app from list_assigned from a User
-router.put('/remove_assigned/:user_email', /*md_auth.ensureAuth,*/ user_controller.user_remove_assigned);
+router.put('/remove_assigned/:user_email', md_auth.ensureAuth, user_controller.user_remove_assigned);
 
 
 /// APP ROUTES ///
 
 // GET request to return accepted apps.
-router.get('/apps/system/accept', /*md_auth.ensureAuth,*/ app_controller.getSystemAccept);
+router.get('/apps/system/accept', md_auth.ensureAuth, app_controller.getSystemAccept);
 
 // POST request to add an app to system_apps_accept collection.
 router.post('/system_apps_accept', md_auth.ensureAuth, app_controller.post_system_apps_accept);
@@ -97,7 +97,7 @@ router.delete('/deleteApp/apps_removed/:app_appId', md_auth.ensureAuth, app_cont
 /// FORM ROUTES ///
 
 // GET request to return forms.
-router.get('/forms', /*[md_auth.ensureAuth, md_admin.isAdmin],*/ form_controller.getForms);
+router.get('/forms', md_auth.ensureAuth, form_controller.getForms);
 
 // POST request to add a new form.
 router.post('/newform', form_controller.createForm);

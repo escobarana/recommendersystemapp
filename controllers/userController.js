@@ -82,7 +82,6 @@ exports.user_update = (req, res, next) =>{
 
 // delete user
 exports.user_delete = (req, res) => {
-  
   User.findOneAndRemove({email: req.params.user_email}, (error, data) => {
     if (error) {
       res.status(500).json({ msg: error });
