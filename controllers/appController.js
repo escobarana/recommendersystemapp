@@ -11,93 +11,109 @@ var async = require('async');
 exports.getSystemAccept = async (req, res) => {
     try{
         var result = await AppSA.find().exec();
-        res.send(result);
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
 };
 
 exports.post_system_apps_accept = async (req, res) => {
-    // Check if this app already exisits
-    let app = await AppSA.findOne({ appId: req.params.app_appId });
-    if (app) {
-        return res.status(400).send('That app already exists!');
-    } else {
-        // Insert the new app if it does not exist yet
-        app = new AppSA({
-            icon: req.body.icon,
-            url: req.body.url,
-            description: req.body.description,
-            appId: req.params.app_appId,
-            title: req.body.title
-        });
-        result = await app.save();
-        res.send(result);
+    try{
+        let exist = AppSA.findOne({appId: req.body.appId}).exec();
+        if(exist === null){ // it does not exist in the collection
+            let app = new AppSA(req.body);
+            if(app !== null){
+                app.save((err, appStored) => {
+                    if(err){
+                    res.status(500).send({message: 'Error saving the app'});
+                    }else{
+                    if(!appStored){
+                        res.status(404).send({message: 'App not saved yet ...'});
+                    }else{
+                        res.status(200).send({app: appStored});
+                    }
+                    }
+                });
+            }   
+        }else{
+            res.send.status(500).send({msg: 'That app already exists'});
+        }
+    }catch(err){
+        res.status(500).send(err);
     }
+
 };
 
 // Display list of removed apps by the system.
 exports.getSystemRemove = async (req, res) => {
     try{
         var result = await AppSR.find().exec();
-        res.send(result);
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
 };
 
 exports.post_system_apps_remove = async (req, res) => {
-    // Check if this app already exisits
-    let app = await AppSR.findOne({ appId: req.params.app_appId });
-    if (app) {
-        return res.status(400).send('That app already exists!');
-    } else {
-        // Insert the new app if it does not exist yet
-        app = new AppSR({
-            icon: req.body.icon,
-            url: req.body.url,
-            description: req.body.description,
-            appId: req.params.app_appId,
-            title: req.body.title
-        });
-        result = await app.save();
-        res.send(result);
+    try{
+        let exist = AppSR.findOne({appId: req.body.appId}).exec();
+        if(exist === null){ // it does not exist in the collection
+            let app = new AppSR(req.body);
+            if(app !== null){
+                app.save((err, appStored) => {
+                    if(err){
+                    res.status(500).send({message: 'Error saving the app'});
+                    }else{
+                    if(!appStored){
+                        res.status(404).send({message: 'App not saved yet ...'});
+                    }else{
+                        res.status(200).send({app: appStored});
+                    }
+                    }
+                });
+            } 
+        }
+    }catch(err){
+        res.status(500).send(err);
     }
+    
 };
 
 // Display list of reviewed accepted apps.
 exports.getReviewAccept = async (req, res) => {
     try{
         var result = await AppRA.find().exec();
-        res.send(result);
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
 };
 
 exports.post_apps_review_accept = async (req, res) => {
-    // Check if this app already exisits
-    let app = await AppRA.findOne({ appId: req.params.app_appId });
-    if (app) {
-        return res.status(400).send('That app already exists!');
-    } else {
-        // Insert the new app if it does not exist yet
-        app = new AppRA({
-            icon: req.body.icon,
-            url: req.body.url,
-            description: req.body.description,
-            appId: req.params.app_appId,
-            title: req.body.title
-        });
-        result = await app.save();
-        res.send(result);
-    }
+    let app = new AppRA({
+        appId: req.body.appId,
+        title: req.body.title,
+        description: req.body.description,
+        icon:req.body.icon,
+        url:req.body.url,
+        reviews: req.body.review});
+    // save app in the database
+    app.save((err, appStored) => {
+        if(err){
+        res.status(500).send({message: 'Error saving the app'});
+        }else{
+        if(!appStored){
+            res.status(404).send({message: 'App not registered'});
+        }else{
+            res.status(200).send({app: appStored});
+        }}
+    });
 };
 
-exports.delete_review_accept = async(req, res)=>{
+exports.delete_review_accept = async (req, res) => {
     try{
-        var result = await AppRA.deleteOne({appId: req.params.app_appId}).exec();
-        res.send(result);
+        var result = AppRA.findOneAndDelete({appId: req.params.app_appId}, {useFindAndModify: false}).exec();
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
@@ -107,35 +123,37 @@ exports.delete_review_accept = async(req, res)=>{
 exports.getReviewRemove = async (req, res) => {
     try{
         var result = await AppRR.find().exec();
-        res.send(result);
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
 };
 
 exports.post_apps_review_remove = async (req, res) => {
-    // Check if this app already exisits
-    let app = await AppRR.findOne({ appId: req.params.app_appId });
-    if (app) {
-        return res.status(400).send('That app already exists!');
-    } else {
-        // Insert the new app if it does not exist yet
-        app = new AppRR({
-            icon: req.body.icon,
-            url: req.body.url,
-            description: req.body.description,
-            appId: req.params.app_appId,
-            title: req.body.title
-        });
-        result = await app.save();
-        res.send(result);
-    }
+    let app = new AppRR({
+        appId: req.body.appId,
+        title: req.body.title,
+        description: req.body.description,
+        icon:req.body.icon,
+        url:req.body.url,
+        reviews: req.body.review});
+    // save app in the database
+    app.save((err, appStored) => {
+        if(err){
+        res.status(500).send({message: 'Error saving the app'});
+        }else{
+        if(!appStored){
+            res.status(404).send({message: 'App not registered'});
+        }else{
+            res.status(200).send({app: appStored});
+        }}
+    });
 };
 
 exports.delete_review_remove = async(req, res)=>{
     try{
-        var result = await AppRR.deleteOne({appId: req.params.app_appId}).exec();
-        res.send(result);
+        var result = await AppRR.findOneAndDelete({appId: req.params.app_appId}, {useFindAndModify: false}).exec();
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
@@ -145,35 +163,27 @@ exports.delete_review_remove = async(req, res)=>{
 exports.getFinalAccept = async (req, res) => {
     try{
         var result = await AppFA.find().exec();
-        res.send(result);
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
 };
 
 exports.post_apps_accepted = async (req, res) => {
-    // Check if this app already exisits
-    let app = await AppFA.findOne({ appId: req.params.app_appId });
-    if (app) {
-        return res.status(400).send('That app already exists!');
-    } else {
-        // Insert the new app if it does not exist yet
-        app = new AppFA({
-            icon: req.body.icon,
-            url: req.body.url,
-            description: req.body.description,
-            appId: req.params.app_appId,
-            title: req.body.title
-        });
+    try{
+        app = new AppFA(req.body);
         result = await app.save();
-        res.send(result);
+        res.status(200).send(result);
+    }catch(err){
+        res.status(500).send(err);
     }
+    
 };
 
 exports.delete_final_accept = async(req, res)=>{
     try{
-        var result = await AppFA.deleteOne({appId: req.params.app_appId}).exec();
-        res.send(result);
+        var result = await AppFA.findOneAndDelete({appId: req.params.app_appId}, {useFindAndModify: false}).exec();
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
@@ -183,35 +193,26 @@ exports.delete_final_accept = async(req, res)=>{
 exports.getFinalRemove = async (req, res) => {
     try{
         var result = await AppFR.find().exec();
-        res.send(result);
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }
 };
 
 exports.post_apps_removed = async (req, res) => {
-    // Check if this app already exisits
-    let app = await AppFR.findOne({ appId: req.params.app_appId });
-    if (app) {
-        return res.status(400).send('That app already exists!');
-    } else {
-        // Insert the new app if it does not exist yet
-        app = new AppFR({
-            icon: req.body.icon,
-            url: req.body.url,
-            description: req.body.description,
-            appId: req.params.app_appId,
-            title: req.body.title
-        });
+    try{
+        app = new AppFR(req.body);
         result = await app.save();
-        res.send(result);
+        res.status(200).send(result);
+    }catch(err){
+        res.status(500).send(err);
     }
 };
 
 exports.delete_final_remove = async(req, res)=>{
     try{
-        var result = await AppFR.deleteOne({appId: req.params.app_appId}).exec();
-        res.send(result);
+        var result = await AppFR.findOneAndDelete({appId: req.params.app_appId}, {useFindAndModify: false}).exec();
+        res.status(200).send(result);
     }catch(error){
         res.status(500).send(error);
     }

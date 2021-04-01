@@ -1,4 +1,4 @@
-const gplay = require("google-play-scraper").memoized({ maxAge: 1000 * 900 }); //cache 15 min
+const gplay = require('google-play-scraper').memoized({ maxAge: 1000 * 900 }); //cache 15 min
 
 var numApps = 170;
 

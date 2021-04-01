@@ -1,0 +1,22 @@
+version: "3"
+
+services: 
+  angular:
+    container_name: tfg-angular
+    build: client
+    ports:
+      - "4200:4200"
+  express:
+    container_name: tfg-node
+    build: server
+    ports:
+      - "3000:3000"
+    links: 
+      - database
+  database:
+    container_name: mymongodb
+    image: mongo
+    ports: 
+      - "27017:27017"
+    logging:
+      driver: none

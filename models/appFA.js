@@ -4,12 +4,12 @@ var Schema = mongoose.Schema;
 
 var AppFASchema = new Schema(
   {
-    appId: {type: String, required: true},
-    description: {type: String, required: true},  
-    icon: {type: String, required: true},
-    title: {type: String, required: true},
-    url: {type: String, required: true},
-    reviews: {type: Array, default: []}
+    appId: {type: String},
+    description: {type: String},  
+    icon: {type: String},
+    title: {type: String},
+    url: {type: String},
+    reviews: {type: Array}
   },
   { collection : 'apps_accepted' }
 );

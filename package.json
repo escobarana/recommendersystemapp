@@ -32,7 +32,7 @@
     "jade": "^1.11.0",
     "jwt-simple": "^0.5.6",
     "moment": "^2.29.1",
-    "mongoose": "^5.11.18",
+    "mongoose": "^5.11.15",
     "morgan": "~1.9.1",
     "node-fetch": "^2.6.1",
     "path": "^0.12.7"

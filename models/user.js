@@ -8,9 +8,29 @@ var UserSchema = new Schema(
     name: {type: String, required: true, maxlength: 100},
     email: {type: String, required: true, unique: true}, // primaryKey
     password: {type: String, required: true},
-    list_recommend: {type: Array, default:[]},
-    list_assign: {type: Array, default:[]}, 
-    list_remove: {type: Array, default:[]} 
+    list_recommend: [{
+      appId: {type: String},
+      description: {type: String},  
+      icon: {type: String},
+      title: {type: String},
+      url: {type: String}
+    }],
+    list_assign: [{
+      appId: {type: String},
+      description: {type: String},  
+      icon: {type: String},
+      title: {type: String},
+      url: {type: String},
+      type: {type: String}
+    }], 
+    list_remove: [{
+      appId: {type: String},
+      description: {type: String},  
+      icon: {type: String},
+      title: {type: String},
+      url: {type: String}
+    }],
+    role: {type: String, default:"newbie"} // admin, reviewer, newbie
   },
   { collection : 'users' }
 );

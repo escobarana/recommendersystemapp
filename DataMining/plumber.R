@@ -52,9 +52,9 @@ function(url=""){
   start.time <- Sys.time()
   
   ################## Importo el json ################## 
-
+  
   json_file <-  fromJSON(url)
-
+  
   ################## Creo tidy data frame para description ################## 
   
   json_file <- lapply(json_file, function(x) {
